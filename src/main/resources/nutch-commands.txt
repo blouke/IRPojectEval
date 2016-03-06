@@ -1,0 +1,32 @@
+Nutch 1.x Crawling Steps
+
+# INJECT the seed URLs
+bin/nutch inject crawl/crawldb urls
+
+# FIRST ROUND
+bin/nutch generate crawl/crawldb crawl/segments
+export SEGMENT=`ls -d crawl/segments/2* | tail -1`
+bin/nutch fetch $SEGMENT
+bin/nutch parse $SEGMENT
+bin/nutch updatedb crawl/crawldb $SEGMENT
+
+# SECOND ROUND
+bin/nutch generate crawl/crawldb crawl/segments
+export SEGMENT=`ls -d crawl/segments/2* | tail -1`
+bin/nutch fetch $SEGMENT
+bin/nutch parse $SEGMENT
+bin/nutch updatedb crawl/crawldb $SEGMENT
+
+#merge the segments
+bin/nutch mergesegs crawl/merge	-dir crawl/segments/	
+
+#dump only parsed text of each url from all segments.
+bin/nutch readseg -dump crawl/merge/* crawl/dump -nocontent -nofetch -nogenerate -noparse -noparsedata
+
+
+IMPORTANT NUTCH PROPERTIES
+1. Set db.ignore.external.links to "true", and inject seeds from the domains you wish to crawl (these seeds must link to all pages you wish to crawl, directly or indirectly). Doing this will let the crawl go through only these domains without leaving to start crawling external links
+
+2. The crawl tool has a default limitation of 100 outlinks of one page that are being fetched. To overcome this limitation change the db.max.outlinks.per.page property to a higher value or simply -1 (unlimited).
+
+3. Set fetcher.max.crawl.delay to 5 seconds to ignore pages beyond this much delay.
