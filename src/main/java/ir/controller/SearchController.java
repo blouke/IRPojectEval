@@ -73,8 +73,34 @@ public class SearchController extends HttpServlet {
 		ServletContext context = getServletContext();
 		QueryProcessor queryProcessor = new QueryProcessor(index);
 		
-		ArrayList<Scores> evalResults = queryProcessor.evaluateTestData(context.getResourceAsStream("/WEB-INF/classes/testQueries"),context.getResourceAsStream("/WEB-INF/classes/actualJudgements"));
-		request.setAttribute("results", evalResults);
+		ArrayList<Scores> evalResultsCosine = queryProcessor.evaluateTestData(context.getResourceAsStream("/WEB-INF/classes/testQueries"),context.getResourceAsStream("/WEB-INF/classes/actualJudgements"), "cosine");
+		Double mae_cosine = 0d;
+		for (Scores score: evalResultsCosine){
+			mae_cosine += Math.abs(score.getNumDocActual() - score.getNumDocRetrieved());
+		}
+		mae_cosine /= evalResultsCosine.size();
+		request.setAttribute("mae_cosine", mae_cosine);
+		
+		
+		ArrayList<Scores> evalResultsJaccard = queryProcessor.evaluateTestData(context.getResourceAsStream("/WEB-INF/classes/testQueries"),context.getResourceAsStream("/WEB-INF/classes/actualJudgements"), "jaccard");
+		Double mae_jaccard = 0d;
+		for (Scores score: evalResultsJaccard){
+			mae_jaccard += Math.abs(score.getNumDocActual() - score.getNumDocRetrieved());
+		}
+		mae_jaccard /= evalResultsJaccard.size();
+		request.setAttribute("mae_jaccard", mae_jaccard);
+		
+		
+		ArrayList<Scores> evalResultsDice = queryProcessor.evaluateTestData(context.getResourceAsStream("/WEB-INF/classes/testQueries"),context.getResourceAsStream("/WEB-INF/classes/actualJudgements"), "dice");
+		Double mae_dice = 0d;
+		for (Scores score: evalResultsDice){
+			mae_dice += Math.abs(score.getNumDocActual() - score.getNumDocRetrieved());
+		}
+		mae_dice /= evalResultsDice.size();
+		request.setAttribute("mae_dice", mae_dice);
+		
+		
+		request.setAttribute("results", evalResultsCosine);
 		RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/result.jsp");
 		dispatcher.include(request, response);
 	}

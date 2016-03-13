@@ -73,27 +73,27 @@ public class QueryProcessor {
 			while (tokenStream.incrementToken()){
 				String term = token.toString();
 				str.append(term+"\t");
-//				IndexWord indexWord = wordnet.lookupIndexWord(POS.NOUN, term);
-//				if (indexWord != null){
-//					Synset[] senses = indexWord.getSenses();
-//					for (Synset synset: senses){
-//						Word[] words = synset.getWords(); 
-//						for (Word word: words){
-//							str.append(word.getLemma()+"\t");
-//						}
-//
-//						//					PointerTargetNodeList relatedList = PointerUtils.getInstance().getSynonyms(synset);					
-//						//					Iterator i = relatedList.iterator();
-//						//					while (i.hasNext()){
-//						//						PointerTargetNode synonymNode = (PointerTargetNode)i.next();
-//						//						Synset synonym = synonymNode.getSynset();
-//						//						Word[] words = synonym.getWords();
-//						//						for (Word w: words){
-//						//							str.append(w.getLemma());
-//						//						}
-//						//					}
-//					}
-//				}
+				//				IndexWord indexWord = wordnet.lookupIndexWord(POS.NOUN, term);
+				//				if (indexWord != null){
+				//					Synset[] senses = indexWord.getSenses();
+				//					for (Synset synset: senses){
+				//						Word[] words = synset.getWords(); 
+				//						for (Word word: words){
+				//							str.append(word.getLemma()+"\t");
+				//						}
+				//
+				//						//					PointerTargetNodeList relatedList = PointerUtils.getInstance().getSynonyms(synset);					
+				//						//					Iterator i = relatedList.iterator();
+				//						//					while (i.hasNext()){
+				//						//						PointerTargetNode synonymNode = (PointerTargetNode)i.next();
+				//						//						Synset synonym = synonymNode.getSynset();
+				//						//						Word[] words = synonym.getWords();
+				//						//						for (Word w: words){
+				//						//							str.append(w.getLemma());
+				//						//						}
+				//						//					}
+				//					}
+				//				}
 			}
 
 			tokenStream.end();
@@ -116,7 +116,7 @@ public class QueryProcessor {
 	}
 
 
-	public ArrayList<Document> generateResults(HashMap<String,Double> queryIndex){
+	public ArrayList<Document> generateResults(HashMap<String,Double> queryIndex, String similarityMeasure){
 
 		HashMap<DocInfo, Double> searchResult = new HashMap<DocInfo,Double>();
 		double queryVectorLength = 0d;
@@ -148,40 +148,44 @@ public class QueryProcessor {
 		}
 
 		// calculate the lenght of query vector
-//		for (Double l: queryIndex.values()){
-//			queryVectorLength += Math.pow(l, 2);
-//		}
-//		queryVectorLength = Math.sqrt(queryVectorLength);
-//
-//		// calculate similarity score
-//		ArrayList<Document> result = new ArrayList<Document>();
-//		for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
-//			DocInfo docInfo = entry.getKey();
-//			int docId = docInfo.getId();
-//			double dotProduct = entry.getValue();
-//			double denominator = docInfo.getLength())*queryVectorLength;
-//			double score = dotProduct/denominator;
-//			String snippet = docInfo.getSnippet();
-//                        if(score>.15){
-//                           result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
-//                        }
-//			
-//		}
-        
-            
-                
+		//		for (Double l: queryIndex.values()){
+		//			queryVectorLength += Math.pow(l, 2);
+		//		}
+		//		queryVectorLength = Math.sqrt(queryVectorLength);
+		//
+		//		// calculate similarity score
+		//		ArrayList<Document> result = new ArrayList<Document>();
+		//		for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
+		//			DocInfo docInfo = entry.getKey();
+		//			int docId = docInfo.getId();
+		//			double dotProduct = entry.getValue();
+		//			double denominator = docInfo.getLength())*queryVectorLength;
+		//			double score = dotProduct/denominator;
+		//			String snippet = docInfo.getSnippet();
+		//                        if(score>.15){
+		//                           result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
+		//                        }
+		//			
+		//		}
 
-		// sort the result list
-                //ArrayList result=runCosineSimilarity(searchResult, queryIndex);
-                ArrayList result=runJaccardSimilarity(searchResult, queryIndex);
-                //ArrayList result=runDiceSimilarity(searchResult, queryIndex);
+
+		ArrayList<Document> result = new ArrayList<Document>();    
+
+		if (similarityMeasure.equals("cosine")){
+			result = runCosineSimilarity(searchResult, queryIndex);
+		} else if (similarityMeasure.equals("jaccard")){
+			result = runJaccardSimilarity(searchResult, queryIndex);
+		} else if (similarityMeasure.equals("dice")){
+			result = runDiceSimilarity(searchResult, queryIndex);
+		}
+
 		Collections.sort(result);
 		return result;
 	}
-            
-         private ArrayList runCosineSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
-             double queryVectorLength = 0d;
-             for (Double l: queryIndex.values()){
+
+	private ArrayList<Document> runCosineSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
+		double queryVectorLength = 0d;
+		for (Double l: queryIndex.values()){
 			queryVectorLength += Math.pow(l, 2);
 		}
 		queryVectorLength = Math.sqrt(queryVectorLength);
@@ -195,62 +199,62 @@ public class QueryProcessor {
 			double denominator = Math.sqrt(docInfo.getLength())*queryVectorLength;
 			double score = dotProduct/denominator;
 			String snippet = docInfo.getSnippet();
-                        if(score>.15){
-                           result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
-                        }
-			
+			if(score>.50){
+				result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
+			}
+
 		}
-            return result;
-         }
-        
-        private ArrayList runDiceSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
-            double queryVectorLength = 0d;
-            for (Double l: queryIndex.values()){
+		return result;
+	}
+
+	private ArrayList<Document> runDiceSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
+		double queryVectorLength = 0d;
+		for (Double l: queryIndex.values()){
 			queryVectorLength += Math.pow(l, 2);
-		
-            }
-            ArrayList<Document> result = new ArrayList<Document>();
-            for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
+
+		}
+		ArrayList<Document> result = new ArrayList<Document>();
+		for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
 			DocInfo docInfo = entry.getKey();
-                        int docId = docInfo.getId();
+			int docId = docInfo.getId();
 			double dotProduct = 2*(entry.getValue());
-                        double denominator = docInfo.getLength()*queryVectorLength;
-                        double score = dotProduct/denominator;
-                        String snippet = docInfo.getSnippet();
-                        if(score>.15){
-                           result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
-                        }
-            
-            
-            }
-            return result;
-        }
-        
-        private ArrayList runJaccardSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
-            double queryVectorLength = 0d;
-            for (Double l: queryIndex.values()){
+			double denominator = docInfo.getLength()*queryVectorLength;
+			double score = dotProduct/denominator;
+			String snippet = docInfo.getSnippet();
+			if(score>.15){
+				result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
+			}
+
+
+		}
+		return result;
+	}
+
+	private ArrayList<Document> runJaccardSimilarity(HashMap<DocInfo, Double> searchResult,HashMap<String,Double> queryIndex){
+		double queryVectorLength = 0d;
+		for (Double l: queryIndex.values()){
 			queryVectorLength += Math.pow(l, 2);
-		
-            }
-            ArrayList<Document> result = new ArrayList<Document>();
-            for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
+
+		}
+		ArrayList<Document> result = new ArrayList<Document>();
+		for (Map.Entry<DocInfo, Double> entry: searchResult.entrySet()){
 			DocInfo docInfo = entry.getKey();
-                        int docId = docInfo.getId();
+			int docId = docInfo.getId();
 			double dotProduct = 2*(entry.getValue());
-                        double denominator = docInfo.getLength()+queryVectorLength-dotProduct;
-                        double score = dotProduct/denominator;
-                        String snippet = docInfo.getSnippet();
-                        if(score>.15){
-                           result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
-                        }
-            
-            
-            }
-            return result;
-        }
-        
-       
-	public ArrayList<Scores> evaluateTestData(InputStream inputStream,InputStream secondinputStream ){
+			double denominator = docInfo.getLength()+queryVectorLength-dotProduct;
+			double score = dotProduct/denominator;
+			String snippet = docInfo.getSnippet();
+			if(score>.15){
+				result.add(new Document(docId,score,docInfo.getUrl(),snippet)); 
+			}
+
+
+		}
+		return result;
+	}
+
+
+	public ArrayList<Scores> evaluateTestData(InputStream inputStream,InputStream secondinputStream, String similarityMeasure ){
 		PatternTokenizer tokenStream = new PatternTokenizer(Pattern.compile("(?s)(?<=\\*FIND\\s).*?(?=\\*FIND|\\*STOP)"),0);
 		tokenStream.setReader(new InputStreamReader(inputStream));
 		HashMap<Integer,String> queries = new HashMap<Integer,String>();
@@ -275,25 +279,25 @@ public class QueryProcessor {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 		HashMap<Integer,ArrayList<Integer>> retrievedResults = new HashMap<Integer,ArrayList<Integer>>();
 		for (Map.Entry<Integer, String> entry: queries.entrySet()){
 
-			ArrayList<Document> results = generateResults(processQuery(entry.getValue()));
+			ArrayList<Document> results = generateResults(processQuery(entry.getValue()), similarityMeasure);
 			ArrayList<Integer> added= new ArrayList<Integer>();
 			for (Document doc: results){
 				added.add(doc.getDocId());
 			}
 			retrievedResults.put(entry.getKey(),added);
 		}
-		
+
 		HashMap<Integer,ArrayList<Integer>> relevantResults = getRelevantResults(secondinputStream);
 		Evaluation eval = new Evaluation(retrievedResults,relevantResults );
 		return eval.calculateScores();
 	}
 
-	
-	
+
+
 	private HashMap<Integer,ArrayList<Integer>> getRelevantResults(InputStream secondinputStream){
 
 		HashMap<Integer,ArrayList<Integer>> relevantResults=new HashMap<Integer,ArrayList<Integer>>(); 

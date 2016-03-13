@@ -13,7 +13,7 @@
 
 </head>
 <body>
-	<h3>Evaluation of system over test data: 423 Time Magazine Articles (from 1963)</h3> 
+	<h2>Evaluation of system over test data: 423 Time Magazine Articles (from 1963)</h2> 
 	<table>
 		<colgroup>
 			<col width="100">
@@ -28,8 +28,8 @@
 			<th>Precision</th>
 			<th>Recall</th>
 			<th>F Measure</th>
-			<th>Number of Retrieved Documents</th>
-			<th>Number of Actual Documents</th>
+			<th>Our system retrieved documents</th>
+			<th>Number of documents (test data judgments)</th>
 		</tr>
 		<c:choose>
 			<c:when test="${fn:length(results)>0}">
@@ -43,6 +43,11 @@
 						<td align="center"><c:out value="${result.numDocActual}" /></td>
                                                
 				</c:forEach>
+				<h3>Mean Absoulte Error</h3>
+				<div>Cosine similarity :<fmt:formatNumber type="number" value="${mae_cosine}" maxFractionDigits="3"/></div>
+				<div>Dice similarity :<fmt:formatNumber type="number" value="${mae_dice}" maxFractionDigits="3"/></div>
+				<div>Jaccard similarity :<fmt:formatNumber type="number" value="${mae_jaccard}" maxFractionDigits="3"/></div>
+				<div><h3>Precision, Recall and F1 measure of test data queries using COSINE similarity.</h3></div>
 			</c:when>
 			<c:otherwise>
 				<p>No relevant documents found.</p>
