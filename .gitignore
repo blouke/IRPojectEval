@@ -48,3 +48,8 @@ local.properties
 # Code Recommenders
 .recommenders/
 target/**
+
+src/main/resources/wordnet/**
+
+**/.DS_Store
+.DS_Store

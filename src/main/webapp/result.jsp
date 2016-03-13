@@ -41,6 +41,7 @@
 						<td align="center"><fmt:formatNumber type="number" value="${result.fmeasure}" maxFractionDigits="3"/></td>
 						<td align="center"><c:out value="${result.numDocRetrieved}" /></td>
 						<td align="center"><c:out value="${result.numDocActual}" /></td>
+                                               
 				</c:forEach>
 			</c:when>
 			<c:otherwise>

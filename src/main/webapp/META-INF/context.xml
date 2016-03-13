@@ -1,7 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Context>
-	<JarScanner>
-		<JarScanFilter defaultTldScan="false" tldScan="jstl-1.2.jar,jersey-server-1.9.jar">
-		</JarScanFilter>
-	</JarScanner>
-</Context>
+<Context path="/irpoject"/>
