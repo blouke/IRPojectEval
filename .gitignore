@@ -53,3 +53,4 @@ src/main/resources/wordnet/**
 
 **/.DS_Store
 .DS_Store
+nb-configuration.xml
