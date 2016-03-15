@@ -10,11 +10,11 @@
 
 <body>
 <!-- ${pageContext.request.contextPath} -->
-	<h1>Search</h1>
+	<h1>Test Data Evaluation (Time magazine collection)</h1>
 	<form action="${pageContext.request.contextPath}/evaluate" method="post">
 		
 			
-			<button type="submit" id="submit">Evaluate Test Data (Time magazine collection)</button>
+			<button type="submit" id="submit">Evaluate</button>
 	</form>
 
 </body>

@@ -48,13 +48,13 @@ public class QueryProcessor {
 
 	public QueryProcessor(TermIndexer index){
 		this.index = index;
-		try {
-			JWNL.initialize(new FileInputStream(System.getProperty("jwnlProp")));
-			wordnet = Dictionary.getInstance();
-		} catch (FileNotFoundException | JWNLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+//		try {
+//			JWNL.initialize(new FileInputStream(System.getProperty("jwnlProp")));
+//			wordnet = Dictionary.getInstance();
+//		} catch (FileNotFoundException | JWNLException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
 	}
 
 
